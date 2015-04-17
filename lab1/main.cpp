@@ -18,11 +18,12 @@ class Node
 {
 public:
   //Constructor
-  Node (vector<int> boardVal = {0}, int move = 0, Node* prevPtr = nullptr)
+  Node (vector<int> boardVal = {-1}, int move = -1, Node* prevPtr = nullptr)
       : board (boardVal), moves (move), prev(prevPtr)
   {  };
 
   vector<int> getBoard(){return board;};
+  vector<int> getPrevBoard(){return prevBoard;};
   int getZeroPos(){return zeroPos;};
   int getH1(){return h1;};
   int getMoves(){return moves;};
@@ -35,8 +36,9 @@ public:
 
 private:
     
-    Node* prev; //pointer to the next Node
+    Node* prev;
     vector<int> board;
+    vector<int> prevBoard;
     int zeroPos;
     int h1;
     int moves;
@@ -184,3 +186,5 @@ int calcH1(vector<int> v) {
     }
     return counter;
 }
+
+
