@@ -18,12 +18,11 @@ class Node
 {
 public:
   //Constructor
-  Node (vector<int> boardVal = {-1}, int move = -1, Node* prevPtr = nullptr)
-      : board (boardVal), moves (move), prev(prevPtr)
+  Node (vector<int> boardVal = {-1}, int move = -1, Node* prevPtr = nullptr, int h = -1)
+      : board (boardVal), moves (move), prev(prevPtr), h1(h)
   {  };
 
   vector<int> getBoard(){return board;};
-  vector<int> getPrevBoard(){return prevBoard;};
   int getZeroPos(){return zeroPos;};
   int getH1(){return h1;};
   int getMoves(){return moves;};
@@ -31,14 +30,13 @@ public:
 
   void setBoard(vector<int> v){board = v;};
   void setZeroPos(int i){zeroPos = i;};
-  void setH1(int i){zeroPos = i;};
+  void setH1(int i){h1 = i;};
   void setMoves(int i){moves = i;};
 
 private:
     
     Node* prev;
     vector<int> board;
-    vector<int> prevBoard;
     int zeroPos;
     int h1;
     int moves;
@@ -54,17 +52,19 @@ vector<int> findMoves(Node* p);
 int calcH1(vector<int> v);
 void addNewMoves(Node* currentBoard, vector<int> possibleMoves, vector<Node*> &ourHeap);
 void printVector(vector<int> v);
+bool compare(Node* p1, Node* p2);
+void printHeap(vector<Node*> theHeap);
 
 vector<int> goalBoard = {1, 2, 3, 4, 5, 6, 7, 8, 0};
 
 int main()
 {
 
-    vector<int> startBoard = {2, 3, 1, 8, 5, 7, 6, 0, 4};
+    vector<int> startBoard = {3, 0, 4, 7, 6, 1, 5, 2, 8};
     vector<Node*> heap = {};
     Node *firstNode = new Node(startBoard,0,nullptr);
     heap.push_back(firstNode);
-
+   
     //Nu börjar vår whilelooooop!
     // sorterar heapen beroende på h
 
@@ -74,14 +74,82 @@ int main()
     *   8 5 7
     *   6 0 2
     */  
-    Node *currentBoard = heap.front();
-    vector<int> possibleMoves = findMoves(currentBoard);
-    cout << "zeroPos " << currentBoard->getZeroPos() << endl;
 
-    // ´Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
-    addNewMoves(currentBoard, possibleMoves, heap);
+    Node *currentBoard = heap.front();
+    int counter = 0;
+    while(currentBoard->getBoard() != goalBoard) {
+    //  cout << "Find Moves" << endl;
+      vector<int> possibleMoves = findMoves(currentBoard);
+      
+      // ´Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
+     // cout << "erase first" << endl;
+      heap.erase(heap.begin());
+    //  cout << "add new moves" << endl;  
+      addNewMoves(currentBoard, possibleMoves, heap);
+      //printHeap(heap); 
+      //sort heap
+      //printHeap(heap);
+      //  cout << "asddddddddddddd" <<  heap[0]->getH1() << endl;
+     // cout << "sort the heap" << endl;
+      sort(heap.begin(),heap.end(), compare);
+      //printHeap(heap);
+     // cout << "get first" << endl;
+      currentBoard = heap.front();
+      counter++;
+      if(counter%1000 == 0)
+        cout << counter << endl;
+    }
+    cout << "lyckades... mby : antal moves" << currentBoard->getMoves() << "antal loops" << counter;
 
     return 0;
+}
+
+
+void addNewMoves(Node* p, vector<int> possibleMoves, vector<Node*> &ourHeap) {
+
+  vector<int> newBoard;
+  
+  int h1= 0;
+
+  vector<int>::iterator it = possibleMoves.begin();
+//  cout << "possible moves are: ";
+//  printVector(p->getBoard());
+
+  while(it != possibleMoves.end())
+  {
+
+    newBoard = p->getBoard();
+    swap(newBoard[*it], newBoard[p->getZeroPos()]);
+  //  printVector(newBoard);
+    
+    //Om vi inte är på första steget och föregående board skulle vara samma så lägg inte till den (hoppa skiten)
+  //  cout << "innan contiune" << endl;
+    if(p->getMoves() != 0 && newBoard == p->getPrev()->getBoard()) {
+      it++;
+      continue;
+    }
+   // cout << "efter continue" << endl;
+    //Number of wrong tiles + number of steps taken
+    h1 = calcH1(newBoard) + p->getMoves();
+    //cout << "h1: " << h1 << endl;
+
+    ourHeap.push_back(new Node(newBoard, p->getMoves()+1, p, h1));
+
+    it++;
+    //cout << "***********************" << endl;
+  }
+  //cout << endl;
+
+
+}
+
+int calcH1(vector<int> v) {
+    int counter = 0;
+    for(int i = 0; i < v.size(); i++) {
+        if(v[i] != goalBoard[i])
+          counter++;
+    }
+    return counter;
 }
 
 vector<int> findMoves(Node *p) {
@@ -133,33 +201,9 @@ vector<int> findMoves(Node *p) {
   return possibleMoves;
 }
 
-void addNewMoves(Node* p, vector<int> possibleMoves, vector<Node*> &ourHeap) {
 
-  vector<int> newBoard;
-  
-  int h1= 0;
-
-  vector<int>::iterator it = possibleMoves.begin();
-  cout << "possible moves are: ";
-  printVector(p->getBoard());
-
-  while(it != possibleMoves.end())
-  {
-    newBoard = p->getBoard();
-   // printVector(newBoard);
-    swap(newBoard[*it], newBoard[p->getZeroPos()]);
-    printVector(newBoard);
-    
-    h1 = calcH1(newBoard);
-    h1+=p->getMoves();
-    cout << "h1: " << h1 << endl;
-
-    it++;
-    cout << "***********************" << endl;
-  }
-  cout << endl;
-
-
+bool compare(Node* p1, Node* p2) {
+  return (p1->getH1() < p2->getH1());
 }
 
 void printVector(vector<int> v) {
@@ -178,13 +222,12 @@ void printVector(vector<int> v) {
   cout << endl;
 }
 
-int calcH1(vector<int> v) {
-    int counter = 0;
-    for(int i = 0; i < v.size(); i++) {
-        if(v[i] != goalBoard[i])
-          counter++;
-    }
-    return counter;
-}
+void printHeap(vector<Node*> theHeap) {
+  cout << "Current heap: ";
+  for(vector<Node*>::iterator it = theHeap.begin(); it != theHeap.end(); it++) {
+    cout << (*it)->getH1() << " ";
+  }
+  cout << endl;
 
+}
 
