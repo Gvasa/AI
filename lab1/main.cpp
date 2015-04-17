@@ -9,6 +9,7 @@
 #include <cassert>
 #include <new>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -17,24 +18,29 @@ class List;
 //Define a node of a doubly linked list
 class Node
 {
-    //Constructor
-    Node (vector<int> boardVal = {0}, int move = 0, Node* nextPtr = nullptr, Node* prevPtr = nullptr)
-        : board (boardVal), moves (move), next (nextPtr), prev(prevPtr)
-    {  };
+public:
+  //Constructor
+  Node (vector<int> boardVal = {0}, int move = 0, Node* prevPtr = nullptr)
+      : board (boardVal), moves (move), prev(prevPtr)
+  {  };
 
+  vector<int> board;
+
+private:
+    
     //Data members
-    vector<int> board;
+    
     int moves;
-    Node* next; //pointer to the next Node
-    Node* prev; //pointer to the previous Node
-
+    int h1;
+    Node* prev; //pointer to the next Node
+    
     friend class List;
     friend ostream& operator<<(ostream& os, const List& L);
 
 };
 
 
-
+/*
 class List
 {
 public:
@@ -55,7 +61,7 @@ public:
   bool isEmpty() const;
   bool find(int x) const;
 
-  int operator[](int index) const;
+  Node* operator[](int index) const;
 
   void makeEmpty();
 
@@ -78,7 +84,7 @@ private:
 /*******************************************
 * List member functions implementation     *
 ********************************************/
-
+/*
 // constructor: create an empty list
 List::List()
 {
@@ -115,25 +121,25 @@ List& List::operator=(const List &L)
     //ADD CODE
 }
 
-*/
+
 bool List::isEmpty() const
 {
     return (front->next == tail);
 }
-/*s
+
 
 bool List::find(int x) const
 {
     //ADD CODE
     return false;
 }
-*/
+
 void List::makeEmpty()
 {
     //ADD CODE
 }
-/*
-int List::operator[](int index) const
+
+Node* List::operator[](int index) const
 {
      Node* p = front->next;
 
@@ -141,10 +147,10 @@ int List::operator[](int index) const
 
      assert(p != tail);
 
-     return p->value;
+     return p;
 }
 
-*/
+
 List& List::insert(vector<int> v) //list is sorted
 {
     Node* p = front->next;
@@ -174,7 +180,7 @@ List& List::remove(int x)
 
     return *this;
 }
-*/
+
 
 //Insert a new Node storing val before the Node pointed by p
 void List::insert(Node *p, vector<int> v, int moves)
@@ -192,7 +198,7 @@ void List::erase(Node *p)
 
     delete p;
 }
-*/
+
 
 ostream& operator<<(ostream& os, const List& L)
 {
@@ -203,7 +209,7 @@ ostream& operator<<(ostream& os, const List& L)
         os << endl;
         for(Node* p = L.front->next; p != L.tail; p = p->next) {
             for(vector<int>::iterator it = p->board.begin(); it != p->board.end(); ++it) {
-                /* std::cout << *it; ... */
+                /* std::cout << *it; ... 
                 if(counter == 3) {
                      counter = 1;
                     os << endl;
@@ -222,46 +228,101 @@ ostream& operator<<(ostream& os, const List& L)
 
     return os;
 }
-
+*/
 
 /*******************************************
 * Test: main()                             *
 ********************************************/
 
+vector<int> findMoves(Node* p);
+
+int calcH1(Node* p, vector<int> possibleMoves);
+
+void addNewMoves(Node* currentBoard, vector<int> possibleMoves, vector<Node*> &ourHeap);
+
 int main()
 {
-    List L;
-
-    cout << "L: " << L << endl;
 
     vector<int> goalBoard = {1, 2, 3, 4, 5, 6, 7, 8, 0};
     vector<int> startBoard = {2, 3, 1, 8, 5, 7, 6, 0, 4};
-    L.insert(startBoard).insert(goalBoard);
+    vector<Node*> heap = {};
+    Node *firstNode = new Node(startBoard,0,nullptr);
+    heap.push_back(firstNode);
 
-    cout << "L: " << L << endl;
+    //Nu börjar vår whilelooooop!
+    // sorterar heapen beroende på h
 
+    //tar första boarden i heapen och hittar möjliga drag 
+    /*
+    *   2 3 1
+    *   8 5 7
+    *   6 0 2
+    */  
+    Node *currentBoard = heap.front();
+    vector<int> possibleMoves = findMoves(currentBoard);
 
+    cout << possibleMoves.size();
 
-/*
-    cout << "Inserting ..." <<endl;
-   // L.insert(10).insert(5).insert(15).insert(8).insert(5);
+    // ´Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
+    addNewMoves(currentBoard, possibleMoves, heap);
 
-    cout << "L: " << L << endl;
-
-    cout << "L[0] = " << L[0] << endl;
-    cout << "L[1] = " << L[1] << endl;
-    cout << "L[2] = " << L[2] << endl;
-    cout << "L[3] = " << L[3] << endl;
-
-    cout << "\nRemoving ..." <<endl;
-    L.remove(8).remove(10).remove(20);
-
-    cout << "L: " << L << endl;
-*/
     return 0;
 }
 
+vector<int> findMoves(Node *p) {
+  
+  vector<int>::iterator it;
+  it = find(p->board.begin(), p->board.end(), 0);
+  
+  int index = std::distance(p->board.begin(), it);
+  // pos: 0 = upp, 1 = ner, 2 = höger, 3 = vänster;
+  
+  vector<int> possibleMoves = {};
+
+  switch(index) {
+    case 0:
+        possibleMoves = {1,3};
+      break;
+    case 1:
+        possibleMoves = {0,2,4};
+      break;
+    case 2:
+        possibleMoves = {1,5};
+      break;
+    case 3:
+        possibleMoves = {0,4,6};
+      break;
+    case 4:
+        possibleMoves = {1,3,5,7};
+      break;
+    case 5:
+        possibleMoves = {2,4,8};
+      break;
+    case 6:
+        possibleMoves = {3,7};
+      break;
+    case 7:
+        possibleMoves = {6,4,8};
+      break;
+    case 8:
+        possibleMoves = {5,7};
+      break;
+    default:
+      cout << "hannes är dum" << endl;
+
+  }
 
 
+  return possibleMoves;
+}
 
+void addNewMoves(Node* p, vector<int> possibleMoves, vector<Node*> &ourHeap) {
 
+  vector<int>::iterator it = possibleMoves.begin();
+  while(it != possibleMoves.end())
+  {
+    cout << *it << endl;
+    it++;
+    
+  }
+}
