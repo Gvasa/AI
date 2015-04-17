@@ -10,6 +10,7 @@
 #include <new>
 #include <vector>
 #include <algorithm>
+#include <math.h>
 
 using namespace std;
 
@@ -50,6 +51,7 @@ private:
 
 vector<int> findMoves(Node* p);
 int calcH1(vector<int> v);
+int calcMan(vector<int> v);
 void addNewMoves(Node* currentBoard, vector<int> possibleMoves, vector<Node*> &ourHeap);
 void printVector(vector<int> v);
 bool compare(Node* p1, Node* p2);
@@ -60,7 +62,7 @@ vector<int> goalBoard = {1, 2, 3, 4, 5, 6, 7, 8, 0};
 int main()
 {
 
-    vector<int> startBoard = {3, 0, 4, 7, 6, 1, 5, 2, 8};
+    vector<int> startBoard = {5, 4, 0, 1, 2, 3, 7, 6, 8};
     vector<Node*> heap = {};
     Node *firstNode = new Node(startBoard,0,nullptr);
     heap.push_back(firstNode);
@@ -78,22 +80,13 @@ int main()
     Node *currentBoard = heap.front();
     int counter = 0;
     while(currentBoard->getBoard() != goalBoard) {
-    //  cout << "Find Moves" << endl;
       vector<int> possibleMoves = findMoves(currentBoard);
       
-      // ´Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
-     // cout << "erase first" << endl;
+      // Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
       heap.erase(heap.begin());
-    //  cout << "add new moves" << endl;  
       addNewMoves(currentBoard, possibleMoves, heap);
-      //printHeap(heap); 
-      //sort heap
-      //printHeap(heap);
-      //  cout << "asddddddddddddd" <<  heap[0]->getH1() << endl;
-     // cout << "sort the heap" << endl;
       sort(heap.begin(),heap.end(), compare);
-      //printHeap(heap);
-     // cout << "get first" << endl;
+
       currentBoard = heap.front();
       counter++;
       if(counter%1000 == 0)
@@ -130,7 +123,10 @@ void addNewMoves(Node* p, vector<int> possibleMoves, vector<Node*> &ourHeap) {
     }
    // cout << "efter continue" << endl;
     //Number of wrong tiles + number of steps taken
-    h1 = calcH1(newBoard) + p->getMoves();
+
+    //h1 = calcH1(newBoard) + p->getMoves();
+    h1 = calcMan(newBoard) + p->getMoves();
+
     //cout << "h1: " << h1 << endl;
 
     ourHeap.push_back(new Node(newBoard, p->getMoves()+1, p, h1));
@@ -150,6 +146,22 @@ int calcH1(vector<int> v) {
           counter++;
     }
     return counter;
+}
+
+int calcMan(vector<int> v) {
+  int counter;
+  int xPosV, xPosReal;
+  int yPosV, yPosReal;
+  for(int i = 0; i < v.size(); i++) {
+    xPosV = ((v[i]-1) % 3);    
+    yPosV = floor(v[i] / 3);
+
+    xPosReal = i%3;    
+    yPosReal = floor(i/3);
+
+    counter += abs(xPosV - xPosReal) + abs(yPosV - yPosReal);
+  }
+  return counter;
 }
 
 vector<int> findMoves(Node *p) {
