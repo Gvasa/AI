@@ -1,3 +1,5 @@
 lab1/bin
 lab1/Makefile
+lab1/*.bat
+lab1/*.exe
 *.DS_Store
