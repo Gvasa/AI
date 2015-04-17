@@ -13,9 +13,7 @@
 
 using namespace std;
 
-class List;
 
-//Define a node of a doubly linked list
 class Node
 {
 public:
@@ -24,226 +22,42 @@ public:
       : board (boardVal), moves (move), prev(prevPtr)
   {  };
 
-  vector<int> board;
+  vector<int> getBoard(){return board;};
+  int getZeroPos(){return zeroPos;};
+  int getH1(){return h1;};
+  int getMoves(){return moves;};
+  Node* getPrev(){return prev;};
+
+  void setBoard(vector<int> v){board = v;};
+  void setZeroPos(int i){zeroPos = i;};
+  void setH1(int i){zeroPos = i;};
+  void setMoves(int i){moves = i;};
 
 private:
     
-    //Data members
-    
-    int moves;
-    int h1;
     Node* prev; //pointer to the next Node
-    
-    friend class List;
-    friend ostream& operator<<(ostream& os, const List& L);
+    vector<int> board;
+    int zeroPos;
+    int h1;
+    int moves;
 
 };
 
-
-/*
-class List
-{
-public:
-
-  //constructor: create an empty list
-  List();
-
-  //copy constructor
-  List(const List &L);
-
-  //destructor
-  ~List();
-
-  //assignment operator
-  List& operator=(const List &L);
-
-  //Remove all values from the list
-  bool isEmpty() const;
-  bool find(int x) const;
-
-  Node* operator[](int index) const;
-
-  void makeEmpty();
-
-  List& insert(vector<int> x);
-  List& remove(int x);
-
-  friend ostream& operator<<(ostream& os, const List& L);
-
-private:
-  Node *front;  //first node
-  Node *tail;   //last node
-
-   //Insert a new Node storing val before the Node pointed by p
-   void insert(Node *p, vector<int> val, int moves);
-
-   //Remove the Node pointed by p
-   void erase(Node *p);
-};
-
-/*******************************************
-* List member functions implementation     *
-********************************************/
-/*
-// constructor: create an empty list
-List::List()
-{
-    vector<int> foo = {0};
-    front = new (nothrow) Node();
-    tail = new (nothrow) Node(foo, 0, nullptr, front);
-
-    //for debugging, if the condition is false
-    //then the the program aborts execution
-    assert (front != nullptr && tail != nullptr);
-
-    front->next = tail;
-}
-
-//copy constructor
-List::List(const List &L)
-{
-    //ADD CODE
-}
-
-//destructor
-List::~List()
-{
-    makeEmpty();
-
-    delete front;
-    delete tail;
-}
-/*
-
-//assignment operator
-List& List::operator=(const List &L)
-{
-    //ADD CODE
-}
-
-
-bool List::isEmpty() const
-{
-    return (front->next == tail);
-}
-
-
-bool List::find(int x) const
-{
-    //ADD CODE
-    return false;
-}
-
-void List::makeEmpty()
-{
-    //ADD CODE
-}
-
-Node* List::operator[](int index) const
-{
-     Node* p = front->next;
-
-     for(int i = 0; p != tail && i < index; i++, p = p->next) ;
-
-     assert(p != tail);
-
-     return p;
-}
-
-
-List& List::insert(vector<int> v) //list is sorted
-{
-    Node* p = front->next;
-
-    //search for insertion point in the list
-    while (p != tail)
-        p = p->next;
-
-     if (p == tail)
-        insert(p, v, p->moves+1); //insert a new Node storing x, before p
-
-
-     return *this;
-}
-
-/*
-List& List::remove(int x)
-{
-    Node* p = front->next;
-
-    //search for node storing x in the list
-    while (p != tail && p->value < x)
-        p = p->next;
-
-    if (p != tail && p->value == x) //p points to node storing x
-        erase(p); //delete the node pointed by p
-
-    return *this;
-}
-
-
-//Insert a new Node storing val before the Node pointed by p
-void List::insert(Node *p, vector<int> v, int moves)
-{
-    p->prev = p->prev->next = new (nothrow) Node(v, moves, p, p->prev);
-
-    assert(p->prev != nullptr);
-}
-/*
-//Remove the Node pointed by p
-void List::erase(Node *p)
-{
-    p->prev->next = p->next;
-    p->next->prev = p->prev;
-
-    delete p;
-}
-
-
-ostream& operator<<(ostream& os, const List& L)
-{
-    int counter = 0;
-    if (L.isEmpty())
-        os << "List is empty!!";
-    else
-        os << endl;
-        for(Node* p = L.front->next; p != L.tail; p = p->next) {
-            for(vector<int>::iterator it = p->board.begin(); it != p->board.end(); ++it) {
-                /* std::cout << *it; ... 
-                if(counter == 3) {
-                     counter = 1;
-                    os << endl;
-                } else 
-                    counter++;
-
-                os << *it << " ";
-            }
-
-            counter = 0;
-            os << "moves: " << p->moves << endl << endl;
-        }
-         //   os << p->value << " ";
-
-    os << endl;
-
-    return os;
-}
-*/
 
 /*******************************************
 * Test: main()                             *
 ********************************************/
 
 vector<int> findMoves(Node* p);
-
-int calcH1(Node* p, vector<int> possibleMoves);
-
+int calcH1(vector<int> v);
 void addNewMoves(Node* currentBoard, vector<int> possibleMoves, vector<Node*> &ourHeap);
+void printVector(vector<int> v);
+
+vector<int> goalBoard = {1, 2, 3, 4, 5, 6, 7, 8, 0};
 
 int main()
 {
 
-    vector<int> goalBoard = {1, 2, 3, 4, 5, 6, 7, 8, 0};
     vector<int> startBoard = {2, 3, 1, 8, 5, 7, 6, 0, 4};
     vector<Node*> heap = {};
     Node *firstNode = new Node(startBoard,0,nullptr);
@@ -260,8 +74,7 @@ int main()
     */  
     Node *currentBoard = heap.front();
     vector<int> possibleMoves = findMoves(currentBoard);
-
-    cout << possibleMoves.size();
+    cout << "zeroPos " << currentBoard->getZeroPos() << endl;
 
     // ´Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
     addNewMoves(currentBoard, possibleMoves, heap);
@@ -272,9 +85,11 @@ int main()
 vector<int> findMoves(Node *p) {
   
   vector<int>::iterator it;
-  it = find(p->board.begin(), p->board.end(), 0);
+  vector<int> v = p->getBoard();
+  it = find(v.begin(), v.end(), 0);
   
-  int index = std::distance(p->board.begin(), it);
+  int index = std::distance(v.begin(), it);
+  p->setZeroPos(index);
   // pos: 0 = upp, 1 = ner, 2 = höger, 3 = vänster;
   
   vector<int> possibleMoves = {};
@@ -318,11 +133,54 @@ vector<int> findMoves(Node *p) {
 
 void addNewMoves(Node* p, vector<int> possibleMoves, vector<Node*> &ourHeap) {
 
+  vector<int> newBoard;
+  
+  int h1= 0;
+
   vector<int>::iterator it = possibleMoves.begin();
+  cout << "possible moves are: ";
+  printVector(p->getBoard());
+
   while(it != possibleMoves.end())
   {
-    cout << *it << endl;
-    it++;
+    newBoard = p->getBoard();
+   // printVector(newBoard);
+    swap(newBoard[*it], newBoard[p->getZeroPos()]);
+    printVector(newBoard);
     
+    h1 = calcH1(newBoard);
+    h1+=p->getMoves();
+    cout << "h1: " << h1 << endl;
+
+    it++;
+    cout << "***********************" << endl;
   }
+  cout << endl;
+
+
+}
+
+void printVector(vector<int> v) {
+  cout << endl << "--- Board ----" << endl;
+  int counter = 1;
+  for(vector<int>::iterator it = v.begin(); it != v.end(); it++)
+  {
+    if(counter == 3) {
+      cout << *it << endl;
+      counter = 1; 
+    } else {
+      cout << *it << " ";
+      counter++;
+    }
+  }
+  cout << endl;
+}
+
+int calcH1(vector<int> v) {
+    int counter = 0;
+    for(int i = 0; i < v.size(); i++) {
+        if(v[i] != goalBoard[i])
+          counter++;
+    }
+    return counter;
 }
