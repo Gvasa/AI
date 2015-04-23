@@ -63,37 +63,49 @@ int main()
 {
 
     vector<int> startBoard = {5, 4, 0, 1, 2, 3, 7, 6, 8};
-    vector<Node*> heap = {};
-    Node *firstNode = new Node(startBoard,0,nullptr);
-    heap.push_back(firstNode);
-   
-    //Nu börjar vår whilelooooop!
-    // sorterar heapen beroende på h
 
-    //tar första boarden i heapen och hittar möjliga drag 
-    /*
-    *   2 3 1
-    *   8 5 7
-    *   6 0 2
-    */  
+    for(int lvl = 19; lvl < 30; lvl+=2) {
+      cout << "Lvl: " << lvl << endl;
+      vector<Node*> heap = {};
+      Node *firstNode = new Node(startBoard,0,nullptr);
+      heap.push_back(firstNode);
+      Node *currentBoard = heap.front();
+      int counter = 0;
+      bool stop = false;
 
-    Node *currentBoard = heap.front();
-    int counter = 0;
-    while(currentBoard->getBoard() != goalBoard) {
-      vector<int> possibleMoves = findMoves(currentBoard);
-      
-      // Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
-      heap.erase(heap.begin());
-      addNewMoves(currentBoard, possibleMoves, heap);
-      sort(heap.begin(),heap.end(), compare);
+      while(currentBoard->getBoard() != goalBoard && !stop) {
 
-      currentBoard = heap.front();
-      counter++;
-      if(counter%1000 == 0)
-        cout << counter << endl;
+        vector<int> possibleMoves = findMoves(currentBoard);
+        
+        // Calc H1(MAKE THE FUCKING MOVE BUT NOT REALLY) och add to heap
+        heap.erase(heap.begin());
+        addNewMoves(currentBoard, possibleMoves, heap);
+        sort(heap.begin(),heap.end(), compare);
+
+        currentBoard = heap.front();
+
+        while(currentBoard->getMoves() > lvl && !stop) {
+          //cout << "Tar ny: " << currentBoard->getMoves() << endl;
+          heap.erase(heap.begin());
+          currentBoard = heap.front();
+          if(heap.size() == 0) {
+            cout << "Börja om från början"<< endl;
+            stop = true;
+          }
+            
+        }
+
+        counter++;
+        if(counter%1000 == 0)
+          cout << counter << endl;
+      }
+      if(currentBoard->getBoard() == goalBoard) {
+        cout << "lyckades... mby : antal moves" << currentBoard->getMoves() << "antal loops" << counter;
+        break;
+      }
     }
-    cout << "lyckades... mby : antal moves" << currentBoard->getMoves() << "antal loops" << counter;
 
+    cout << "NOPE, fanns inga under 30 drag" << endl;
     return 0;
 }
 
@@ -132,11 +144,7 @@ void addNewMoves(Node* p, vector<int> possibleMoves, vector<Node*> &ourHeap) {
     ourHeap.push_back(new Node(newBoard, p->getMoves()+1, p, h1));
 
     it++;
-    //cout << "***********************" << endl;
   }
-  //cout << endl;
-
-
 }
 
 int calcH1(vector<int> v) {
