@@ -5,7 +5,9 @@ public class Klaus {
     private ArrayList<Literal> literalArray;
 
     //CONSTRUCTORS
-    public Klaus() {}
+    public Klaus() {
+        literalArray = new ArrayList<Literal>();
+    }
 
     public Klaus(String theLiterals) {
         literalArray = new ArrayList<Literal>();
@@ -31,6 +33,10 @@ public class Klaus {
 
     //CLASS METHDOS
     void printKlaus() {
+        if(literalArray == null) {
+            System.out.println("Det verkar som du har inte har något i din literalarray");
+            return;
+        }
         for (int i = 0; i < literalArray.size(); i++) {
             ((Literal)literalArray.get(i)).printLiteral(); 
         }

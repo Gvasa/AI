@@ -6,28 +6,33 @@ public class Lab2 {
     
 
     public static void main(String[] args) {
-        System.out.println("Hello, World newbs");
+
+        //Klaus klaus1 = new Klaus("-A+B+C-D");
+        //Klaus klaus2 = new Klaus("+A-B+K-P");
+
+        Klaus klaus1 = new Klaus("-A+B");
+        Klaus klaus2 = new Klaus("+C-D");
 
 
-        Klaus foo = new Klaus("-A+B+C-D");
-        Klaus bar = new Klaus("+A-B+K-P");
-        foo.printKlaus();
-        bar.printKlaus();
+        System.out.println();
+        System.out.print("clause 1: " );
+        klaus1.printKlaus();
+        System.out.print("clause 2: ");
+        klaus2.printKlaus();
         
-        Klaus temp = new Klaus(compareKlaus(foo,bar));
-        
-        //temp.getLiteralArray().remove(bar.getLiteralArray())
-        //temp.printKlaus();
+        Klaus resultKlaus = new Klaus(compareKlaus(klaus1,klaus2));
+        resultKlaus.printKlaus();
 
     }
 
     public static ArrayList<Literal> compareKlaus(Klaus A, Klaus B) {
         Klaus temp = A;
         temp.getLiteralArray().addAll(B.getLiteralArray());
+        System.out.println();
         System.out.println("innan borttagning");
         temp.printKlaus();
        
-        
+        int sizeBefore = temp.getLiteralArray().size(); 
         int index = 0;
         boolean done = false;
         while(index != temp.getLiteralArray().size()) {
@@ -46,8 +51,12 @@ public class Lab2 {
         index++;
 
         }
+        System.out.println();
         System.out.println("efter borttagning");
-        temp.printKlaus();
-        return temp.getLiteralArray();
+
+        if(temp.getLiteralArray().size() == 0 || sizeBefore == temp.getLiteralArray().size())
+            return null;
+        else 
+            return temp.getLiteralArray();
     }
 }
