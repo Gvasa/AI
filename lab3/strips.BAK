@@ -67,7 +67,6 @@ findBestPlan([H|T], P, X, BestPlan, Length) :-
 
 % Check is first list is a subset of the second
 is_subset([], _).
-is_subset([diff(A,B)|T], Set):- !, \+ A=B, is_subset(T, Set).
 is_subset([H|T], Set):- member(H, Set), is_subset(T, Set).
 
 printPlan([]).
