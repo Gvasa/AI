@@ -1,51 +1,66 @@
 % Blocks World
 
 % actions
-act( pick_from_table(X),
-     [block(X), handempty,  clear(X), on(X, table)],  % preconditions
-     [handempty, on(X, table)],                       % delete
-     [holding(X)]                                     % add
-     ).
+:- use_module(library(clpfd)).
 
-act( pickup_from_block(X, Y),
-     [block(X), handempty, clear(X), on(X, Y), block(Y), diff(X, Y)],  % (1)
-     [handempty, on(X, Y)],
-     [holding(X), clear(Y)]
-     ).
-% (1)  diff(X,Y) is needed to prevent cases like pickup_from_block(a,a)
+object(X) :- X in 1..6.
+block(X) :- X in 1..4.
+triangle(X) :- X in 5..6.
+table(X) :- X in 7.
+
+blue(X) :- X in 1..2.
+green(X) :- X in 3 \/ 5.
+red(X) :- X in 4 \/ 6.
+
+
+act( pickup_from_table(X),
+     [gripEmpty, clear(X), on(X, 7)],     % preconditions
+     [gripEmpty, on(X, 7)],               % remove
+     [holding(X)]                             % add
+     ):-
+     object(X).
+     
+act( pickup_from_block(X,Y),
+     [gripEmpty, clear(X), on(X, Y)],         % preconditions
+     [gripEmpty, on(X, Y)],                   % remove
+     [holding(X), clear(Y)]                   % add
+     ):-
+     object(X).
 
 act( putdown_on_table(X),
-     [block(X), holding(X)],
-     [holding(X)],
-     [handempty, on(X, table)]
-     ).
+     [holding(X)],                            % preconditions
+     [holding(X)],                            % remove
+     [gripEmpty, on(X,7)]                 % add
+     ):-
+     object(X).
+     
+act( putdown_on_block(X, Y),
+     [clear(Y), holding(X)],         % preconditions
+     [clear(Y), holding(X)],         % remove
+     [gripEmpty, on(X,Y)]            % add
+     ):-
+     object(X),
+     block(Y).
 
-act(  putdown_on_block(X, Y),
-     [block(X), holding(X), block(Y), clear(Y), diff(X, Y)],
-     [holding(X), clear(Y)],
-     [handempty, on(X, Y)]
-     ).
 
-
-goal_state( [on(c,b),on(a,c) ]).
+goal_state([ on(X, Y), on(Y,Z), on(Z,7) ]):-
+             triangle(X),
+             green(X),
+             green(Y),
+             blue(Z).
+             
 
 initial_state(
-     [      clear(b),
-            clear(c),
-            on(c,a),
-            on(a,table),
-            on(b,table),
-            handempty,
-            block(a),
-            block(b),
-            block(c),
-            diff(a,b),
-            diff(a,c),
-            diff(b,a),
-            diff(b,c),
-            diff(c,a),
-            diff(c,b),
-            diff(a,table),
-            diff(b,table),
-            diff(c,table)
+     [
+            gripEmpty,
+            on(6, 7),
+            on(3, 7),
+            on(4, 7),
+            on(2, 7),
+            on(1, 4),
+            on(5, 2),
+            clear(1),
+            clear(3),
+            clear(5),
+            clear(6)
      ]).
